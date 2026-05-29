@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AgaHub</title>
+<title>Aga Hub</title>
 
 <style>
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #0b0f0b;
+  background: #070c07;
   color: white;
 }
 
@@ -24,7 +24,7 @@ body {
 }
 
 .logo {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: bold;
   color: #00ff88;
   text-shadow: 0 0 10px #00ff88;
@@ -35,7 +35,7 @@ body {
   border-radius: 8px;
   border: none;
   outline: none;
-  width: 200px;
+  width: 220px;
 }
 
 /* GRID */
@@ -59,7 +59,7 @@ body {
 .card:hover {
   transform: scale(1.05);
   border-color: #00ff88;
-  box-shadow: 0 0 15px #00ff88;
+  box-shadow: 0 0 18px #00ff88;
 }
 
 .card img {
@@ -79,11 +79,9 @@ body {
 #player {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: black;
+  z-index: 999;
 }
 
 #closeBtn {
@@ -93,9 +91,9 @@ body {
   background: red;
   color: white;
   border: none;
-  padding: 10px;
+  padding: 10px 14px;
   cursor: pointer;
-  z-index: 10;
+  z-index: 1000;
 }
 
 iframe {
@@ -115,7 +113,7 @@ iframe {
 
 <div class="grid" id="grid"></div>
 
-<!-- GAME PLAYER -->
+<!-- PLAYER -->
 <div id="player">
   <button id="closeBtn" onclick="closeGame()">X</button>
   <iframe id="frame"></iframe>
@@ -123,12 +121,29 @@ iframe {
 
 <script>
 
-// 🎮 CLEAN GAME LIST (ONLY URLS)
 const games = [
   {
     title: "Bad Piggies",
-    thumbnail: "PASTE_THUMBNAIL_URL",
-    link: "https://pd70p97.live.codepad.app/Bad%20Piggies.html"
+    thumbnail: "https://imgur.com/your-image.jpg",
+    link: "https://badpig.vercel.app/"
+  },
+
+  {
+    title: "2048",
+    thumbnail: "https://upload.wikimedia.org/wikipedia/commons/1/18/2048_game.svg",
+    link: "https://play2048.co/"
+  },
+
+  {
+    title: "Cookie Clicker",
+    thumbnail: "https://orteil.dashnet.org/cookieclicker/img/favicon.ico",
+    link: "https://orteil.dashnet.org/cookieclicker/"
+  },
+
+  {
+    title: "Tetris",
+    thumbnail: "https://tetris.com/favicon.ico",
+    link: "https://tetris.com/play-tetris"
   }
 ];
 
@@ -163,10 +178,8 @@ function closeGame() {
 
 // SEARCH
 document.getElementById("search").addEventListener("input", (e) => {
-  const value = e.target.value.toLowerCase();
-  const filtered = games.filter(g =>
-    g.title.toLowerCase().includes(value)
-  );
+  const v = e.target.value.toLowerCase();
+  const filtered = games.filter(g => g.title.toLowerCase().includes(v));
   loadGames(filtered);
 });
 
