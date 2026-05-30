@@ -3,21 +3,30 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AgaHub v3</title>
+<title>AgaHub v4</title>
 
 <style>
 :root{
   --bg:#070c07;
   --panel:#0f1a0f;
   --card:#111a11;
+  --text:#ffffff;
   --accent:#00ff88;
+}
+
+/* LIGHT MODE */
+body.light{
+  --bg:#f2f2f2;
+  --panel:#ffffff;
+  --card:#e8e8e8;
+  --text:#111;
 }
 
 body{
   margin:0;
   font-family:Arial;
   background:var(--bg);
-  color:white;
+  color:var(--text);
   overflow-x:hidden;
 }
 
@@ -25,13 +34,13 @@ body{
 .topbar{
   position:sticky;
   top:0;
+  z-index:50;
   display:flex;
   justify-content:space-between;
   align-items:center;
   padding:12px;
   background:var(--panel);
   border-bottom:2px solid var(--accent);
-  z-index:50;
 }
 
 .logo{
@@ -42,18 +51,72 @@ body{
 .search{
   width:40%;
   padding:8px;
-  border-radius:8px;
   border:none;
-  outline:none;
+  border-radius:8px;
 }
 
-.menuBtn{
-  background:transparent;
-  border:1px solid var(--accent);
-  color:var(--accent);
-  padding:6px 10px;
-  border-radius:6px;
+button{
   cursor:pointer;
+}
+
+/* GRID (4 per row) */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:12px;
+  padding:15px;
+}
+
+@media(max-width:900px){
+  .grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:500px){
+  .grid{grid-template-columns:repeat(1,1fr);}
+}
+
+/* CARD */
+.card{
+  background:var(--card);
+  border:1px solid #1f3a1f;
+  border-radius:12px;
+  overflow:hidden;
+  transition:transform .2s, opacity .4s, transform .4s;
+}
+
+.card:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 12px var(--accent);
+}
+
+.card img{
+  width:100%;
+  height:120px;
+  object-fit:cover;
+}
+
+.card-title{
+  text-align:center;
+  padding:8px;
+  color:var(--accent);
+}
+
+/* EXIT + ENTER ANIMATION */
+.slide-out{
+  transform:translateX(-120%);
+  opacity:0;
+}
+
+.slide-in{
+  transform:translateX(-120%);
+  opacity:0;
+  animation:in .4s forwards;
+}
+
+@keyframes in{
+  to{
+    transform:translateX(0);
+    opacity:1;
+  }
 }
 
 /* HERO */
@@ -62,7 +125,6 @@ body{
   height:180px;
   border-radius:12px;
   overflow:hidden;
-  border:1px solid #1f3a1f;
   position:relative;
 }
 
@@ -79,52 +141,6 @@ body{
   background:rgba(0,0,0,0.5);
   padding:6px 10px;
   color:var(--accent);
-}
-
-/* GRID */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-  gap:12px;
-  padding:15px;
-}
-
-/* CARD */
-.card{
-  background:var(--card);
-  border:1px solid #1f3a1f;
-  border-radius:12px;
-  overflow:hidden;
-  cursor:pointer;
-  transition:transform .2s, opacity .5s, left .5s;
-  position:relative;
-}
-
-.card:hover{
-  transform:scale(1.05);
-  box-shadow:0 0 15px var(--accent);
-}
-
-.card img{
-  width:100%;
-  height:110px;
-  object-fit:cover;
-}
-
-.card-title{
-  text-align:center;
-  padding:8px;
-  color:var(--accent);
-}
-
-/* SLIDE OUT ANIMATION */
-.card.exit{
-  animation: slideOutLeft .6s forwards;
-}
-
-@keyframes slideOutLeft{
-  0%{transform:translateX(0);opacity:1;}
-  100%{transform:translateX(-200px);opacity:0;}
 }
 
 /* PLAYER */
@@ -146,9 +162,8 @@ iframe{
   position:absolute;
   top:10px;
   z-index:101;
-  padding:8px 12px;
   border:none;
-  cursor:pointer;
+  padding:8px 12px;
 }
 
 .closeBtn{right:10px;background:red;color:white;}
@@ -157,20 +172,20 @@ iframe{
 /* SETTINGS */
 .settings{
   position:fixed;
-  right:-280px;
+  right:-300px;
   top:0;
-  width:250px;
+  width:260px;
   height:100%;
-  background:#0b120b;
+  background:var(--panel);
   border-left:2px solid var(--accent);
   transition:.3s;
   padding:15px;
   z-index:200;
 }
 
-.settings.open{right:0;}
-
-.settingItem{margin:12px 0;}
+.settings.open{
+  right:0;
+}
 </style>
 </head>
 
@@ -179,7 +194,7 @@ iframe{
 <div class="topbar">
   <div class="logo">💚 AgaHub</div>
   <input id="search" class="search" placeholder="Search games...">
-  <button class="menuBtn" onclick="toggleSettings()">⚙</button>
+  <button onclick="toggleSettings()">⚙</button>
 </div>
 
 <div class="hero">
@@ -200,14 +215,14 @@ iframe{
 <div class="settings" id="settings">
   <h3 style="color:var(--accent)">Settings</h3>
 
-  <div class="settingItem">
-    Accent Color:
-    <input type="color" id="colorPicker">
-  </div>
+  <button onclick="toggleTheme()">Light/Dark Mode</button>
+  <br><br>
 
-  <div class="settingItem">
-    <button onclick="reset()">Reset</button>
-  </div>
+  Accent Color:<br>
+  <input type="color" id="colorPicker">
+
+  <br><br>
+  <button onclick="closeSettings()">Close</button>
 </div>
 
 <script>
@@ -215,21 +230,19 @@ iframe{
 const games = [
   {title:"Bad Piggies", img:"https://upload.wikimedia.org/wikipedia/en/3/3e/Bad_Piggies_app_icon.png", link:"https://badpig.vercel.app/", featured:true},
 
-  {title:"Crazy Cattle", img:"https://via.placeholder.com/150", link:"https://crazy-cattle-3d.github.io/"},
+  {title:"Crazy Cattle", img:"https://via.placeholder.com/150", link:"https://crazy-cattle.github.io/"},
 
   {title:"Slope", img:"https://via.placeholder.com/150", link:"https://slopegame.github.io/"},
 
   {title:"Run 3", img:"https://via.placeholder.com/150", link:"https://run3.io/"},
 
-  {title:"Minecraft Classic", img:"https://classic.minecraft.net/", link:"https://classic.minecraft.net/"},
-
-  {title:"Geometry Dash Lite", img:"https://via.placeholder.com/150", link:"https://geometrydashlite.io/"},
-
-  {title:"Tunnel Rush", img:"https://via.placeholder.com/150", link:"https://tunnelrush.github.io/"},
+  {title:"Shell Shockers", img:"https://via.placeholder.com/150", link:"https://shellshock.io/"},
 
   {title:"Drift Hunters", img:"https://via.placeholder.com/150", link:"https://drift-hunters.co/"},
 
-  {title:"Shell Shockers", img:"https://via.placeholder.com/150", link:"https://shellshock.io/"},
+  {title:"Minecraft Classic", img:"https://via.placeholder.com/150", link:"https://classic.minecraft.net/"},
+
+  {title:"Tunnel Rush", img:"https://via.placeholder.com/150", link:"https://tunnelrush.github.io/"},
 
   {title:"Paper.io", img:"https://via.placeholder.com/150", link:"https://paper-io.com/"}
 ];
@@ -240,18 +253,20 @@ function load(){
   const grid=document.getElementById("grid");
   grid.innerHTML="";
 
-  games.forEach(g=>{
+  games.forEach((g,i)=>{
     const c=document.createElement("div");
-    c.className="card";
+    c.className="card slide-in";
+    c.style.animationDelay=(i*30)+"ms";
+
     c.innerHTML=`<img src="${g.img}"><div class="card-title">${g.title}</div>`;
-    c.onclick=()=>openGame(g);
+    c.onclick=()=>openGame(g,c);
     grid.appendChild(c);
   });
 
-  updateHero();
+  hero();
 }
 
-function updateHero(){
+function hero(){
   const f=games.filter(g=>g.featured||g.title==="Bad Piggies");
   const g=f[heroIndex%f.length];
   document.getElementById("heroImg").src=g.img;
@@ -259,22 +274,24 @@ function updateHero(){
   heroIndex++;
 }
 
-setInterval(updateHero,4000);
+setInterval(hero,4000);
 
-function openGame(g){
-  document.getElementById("frame").src=g.link;
-  document.getElementById("player").style.display="block";
-
-  // animate cards out
-  document.querySelectorAll(".card").forEach((c,i)=>{
-    setTimeout(()=>c.classList.add("exit"), i*20);
-    setTimeout(()=>c.classList.remove("exit"), 600);
+/* GAME OPEN */
+function openGame(g,card){
+  document.querySelectorAll(".card").forEach(c=>{
+    c.classList.add("slide-out");
   });
+
+  setTimeout(()=>{
+    document.getElementById("frame").src=g.link;
+    document.getElementById("player").style.display="block";
+  },400);
 }
 
 function closeGame(){
   document.getElementById("player").style.display="none";
   document.getElementById("frame").src="";
+  load();
 }
 
 function full(){
@@ -286,17 +303,27 @@ document.getElementById("search").addEventListener("input",(e)=>{
   const v=e.target.value.toLowerCase();
   const grid=document.getElementById("grid");
   grid.innerHTML="";
+
   games.filter(g=>g.title.toLowerCase().includes(v))
   .forEach(g=>{
     const c=document.createElement("div");
-    c.className="card";
+    c.className="card slide-in";
     c.innerHTML=`<img src="${g.img}"><div class="card-title">${g.title}</div>`;
-    c.onclick=()=>openGame(g);
+    c.onclick=()=>openGame(g,c);
     grid.appendChild(c);
   });
 });
 
 /* SETTINGS */
+function toggleSettings(){
+  document.getElementById("settings").classList.toggle("open");
+}
+
+function closeSettings(){
+  document.getElementById("settings").classList.remove("open");
+}
+
+/* THEME */
 const picker=document.getElementById("colorPicker");
 
 picker.value=localStorage.getItem("accent")||"#00ff88";
@@ -307,13 +334,8 @@ picker.oninput=(e)=>{
   localStorage.setItem("accent",e.target.value);
 };
 
-function toggleSettings(){
-  document.getElementById("settings").classList.toggle("open");
-}
-
-function reset(){
-  localStorage.clear();
-  location.reload();
+function toggleTheme(){
+  document.body.classList.toggle("light");
 }
 
 load();
