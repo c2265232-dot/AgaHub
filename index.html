@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AgaHub v5</title>
+<title>AgaHub v8</title>
 
 <style>
 :root{
   --bg:#070c07;
   --panel:#0f1a0f;
   --card:#111a11;
-  --text:#fff;
   --accent:#00ff88;
+  --text:#fff;
 }
 
 body{
@@ -19,35 +19,9 @@ body{
   font-family:Arial;
   background:var(--bg);
   color:var(--text);
-  overflow-x:hidden;
 }
 
-/* LOADING SCREEN */
-#loading{
-  position:fixed;
-  inset:0;
-  background:black;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  z-index:9999;
-}
-
-.loader{
-  width:60px;
-  height:60px;
-  border:4px solid #222;
-  border-top:4px solid var(--accent);
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-}
-
-@keyframes spin{
-  to{transform:rotate(360deg);}
-}
-
-/* TOPBAR */
+/* TOP */
 .topbar{
   display:flex;
   justify-content:space-between;
@@ -64,18 +38,34 @@ body{
   padding:8px;
 }
 
+/* SETTINGS */
+.settings{
+  position:fixed;
+  right:-260px;
+  top:0;
+  width:240px;
+  height:100%;
+  background:var(--panel);
+  border-left:2px solid var(--accent);
+  transition:.3s;
+  padding:10px;
+  z-index:1000;
+}
+
+.settings.open{right:0;}
+
 /* CATEGORIES */
 .categories{
   display:flex;
-  gap:10px;
+  gap:8px;
   padding:10px;
   overflow-x:auto;
 }
 
 .cat{
   padding:6px 10px;
-  background:#1a2a1a;
   border-radius:20px;
+  background:#1a2a1a;
   cursor:pointer;
   white-space:nowrap;
 }
@@ -85,29 +75,45 @@ body{
   color:black;
 }
 
-/* FEATURED CAROUSEL (MOVES LEFT) */
-.featured{
+/* 🔥 RECOMMENDED */
+.carousel{
   overflow:hidden;
-  white-space:nowrap;
   padding:10px;
 }
 
-.featuredTrack{
+.track{
   display:inline-flex;
   gap:10px;
-  animation:scrollLeft 18s linear infinite;
+  animation:scrollRight 12s linear infinite;
 }
 
-@keyframes scrollLeft{
-  from{transform:translateX(0);}
-  to{transform:translateX(-50%);}
+@keyframes scrollRight{
+  from{transform:translateX(-50%);}
+  to{transform:translateX(0);}
 }
 
-.featuredCard{
-  min-width:180px;
-  background:var(--card);
-  border-radius:10px;
+.bigCard{
+  min-width:260px;
+  height:160px;
+  border-radius:14px;
   overflow:hidden;
+  position:relative;
+  cursor:pointer;
+}
+
+.bigCard img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.bigCard span{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  background:rgba(0,0,0,.6);
+  color:var(--accent);
+  padding:8px;
 }
 
 /* GRID */
@@ -125,21 +131,17 @@ body{
   .grid{grid-template-columns:repeat(1,1fr);}
 }
 
-/* GAME CARD */
+/* CARD */
 .card{
   background:var(--card);
   border-radius:10px;
   overflow:hidden;
-  transform:translateX(-40px);
-  opacity:0;
-  animation:slideIn .4s forwards;
+  animation:in .3s ease;
 }
 
-@keyframes slideIn{
-  to{
-    transform:translateX(0);
-    opacity:1;
-  }
+@keyframes in{
+  from{transform:translateX(-30px);opacity:0;}
+  to{transform:translateX(0);opacity:1;}
 }
 
 .card img{
@@ -161,43 +163,50 @@ body{
   position:fixed;
   inset:0;
   background:black;
+  z-index:999;
 }
 
 iframe{width:100%;height:100%;border:none;}
 
-.closeBtn{
+.btn{
   position:absolute;
-  right:10px;
   top:10px;
-  background:red;
-  color:white;
-  border:none;
-  padding:10px;
   z-index:1000;
+  padding:10px;
+  border:none;
 }
+
+.close{right:10px;background:red;color:white;}
+.full{left:10px;background:var(--accent);}
 </style>
 </head>
 
 <body>
 
-<!-- LOADING -->
-<div id="loading">
-  <div class="loader"></div>
-  <p style="color:var(--accent)">Loading AgaHub...</p>
-</div>
-
 <!-- TOP -->
 <div class="topbar">
   <div class="logo">💚 AgaHub</div>
-  <input id="search" class="search" placeholder="Search games...">
+  <input class="search" placeholder="Search...">
+  <button onclick="toggleSettings()">⚙</button>
+</div>
+
+<!-- SETTINGS -->
+<div class="settings" id="settings">
+  <h3 style="color:var(--accent)">Settings</h3>
+  <button onclick="toggleTheme()">Light/Dark</button>
+  <br><br>
+  Accent:
+  <input type="color" id="color">
+  <br><br>
+  <button onclick="toggleSettings()">Close</button>
 </div>
 
 <!-- CATEGORIES -->
 <div class="categories" id="cats"></div>
 
-<!-- FEATURED -->
-<div class="featured">
-  <div class="featuredTrack" id="featuredTrack"></div>
+<!-- 🔥 RECOMMENDED (ONLY ALL) -->
+<div class="carousel" id="carouselWrap">
+  <div class="track" id="track"></div>
 </div>
 
 <!-- GRID -->
@@ -205,29 +214,39 @@ iframe{width:100%;height:100%;border:none;}
 
 <!-- PLAYER -->
 <div id="player">
-  <button class="closeBtn" onclick="closeGame()">X</button>
+  <button class="btn full" onclick="full()">⛶</button>
+  <button class="btn close" onclick="closeGame()">X</button>
   <iframe id="frame"></iframe>
 </div>
 
 <script>
 
 const games = [
-  {title:"Bad Piggies",img:"https://upload.wikimedia.org/wikipedia/en/3/3e/Bad_Piggies_app_icon.png",link:"https://badpig.vercel.app/",cat:"Popular",fav:false,featured:true},
-  {title:"Crazy Cattle",img:"https://via.placeholder.com/200",link:"https://crazy-cattle.github.io/",cat:"Action"},
-  {title:"Slope",img:"https://via.placeholder.com/200",link:"https://slopegame.github.io/",cat:"Action"},
-  {title:"Run 3",img:"https://via.placeholder.com/200",link:"https://run3.io/",cat:"Action"},
-  {title:"Shell Shockers",img:"https://via.placeholder.com/200",link:"https://shellshock.io/",cat:"Action"},
-  {title:"Tunnel Rush",img:"https://via.placeholder.com/200",link:"https://tunnelrush.github.io/",cat:"Action"},
-  {title:"Paper.io",img:"https://via.placeholder.com/200",link:"https://paper-io.com/",cat:"Puzzle"}
+  {t:"Bad Piggies",i:"https://upload.wikimedia.org/wikipedia/en/3/3e/Bad_Piggies_app_icon.png",l:"https://badpig.vercel.app/",c:"Popular",f:true},
+  {t:"Crazy Cattle",i:"https://via.placeholder.com/400x300",l:"https://crazy-cattle.github.io/",c:"Action",f:true},
+  {t:"Slope",i:"https://via.placeholder.com/400x300",l:"https://slopegame.github.io/",c:"Action",f:true},
+  {t:"Run 3",i:"https://via.placeholder.com/400x300",l:"https://run3.io/",c:"Action"},
+  {t:"Shell Shockers",i:"https://via.placeholder.com/400x300",l:"https://shellshock.io/",c:"Action"},
+  {t:"Tunnel Rush",i:"https://via.placeholder.com/400x300",l:"https://tunnelrush.github.io/",c:"Action"},
+  {t:"Paper.io",i:"https://via.placeholder.com/400x300",l:"https://paper-io.com/",c:"Puzzle"}
 ];
 
-let currentCat="All";
-let favs=JSON.parse(localStorage.getItem("favs")||"[]");
+let cat="All";
+let fav=JSON.parse(localStorage.getItem("fav")||"[]");
 
-/* LOADING SCREEN */
-setTimeout(()=>{
-  document.getElementById("loading").style.display="none";
-},1200);
+/* SETTINGS */
+function toggleSettings(){
+  document.getElementById("settings").classList.toggle("open");
+}
+
+function toggleTheme(){
+  document.body.classList.toggle("light");
+}
+
+/* COLOR */
+document.getElementById("color").oninput=(e)=>{
+  document.documentElement.style.setProperty("--accent",e.target.value);
+};
 
 /* CATEGORIES */
 const cats=["All","Popular","Action","Puzzle","Favorites"];
@@ -243,29 +262,41 @@ cats.forEach(c=>{
   d.onclick=()=>{
     document.querySelectorAll(".cat").forEach(x=>x.classList.remove("active"));
     d.classList.add("active");
-    currentCat=c;
+    cat=c;
     render();
   };
 
   catBox.appendChild(d);
 });
 
-/* FEATURED */
-function loadFeatured(){
-  const f=document.getElementById("featuredTrack");
-  const list=games.filter(g=>g.featured);
-
-  f.innerHTML=list.concat(list).map(g=>
-    `<div class="featuredCard"><img src="${g.img}" style="width:100%"><div style="padding:5px;color:var(--accent)">${g.title}</div></div>`
-  ).join("");
+/* FAVORITE */
+function toggleFav(t){
+  if(fav.includes(t))fav=fav.filter(x=>x!==t);
+  else fav.push(t);
+  localStorage.setItem("fav",JSON.stringify(fav));
+  render();
 }
 
-/* FAVORITE */
-function toggleFav(title){
-  if(favs.includes(title))favs=favs.filter(f=>f!==title);
-  else favs.push(title);
-  localStorage.setItem("favs",JSON.stringify(favs));
-  render();
+/* 🔥 RECOMMENDED (ONLY ALL) */
+function loadCarousel(){
+  const wrap=document.getElementById("carouselWrap");
+  const track=document.getElementById("track");
+
+  if(cat!=="All"){
+    wrap.style.display="none";
+    return;
+  }
+
+  wrap.style.display="block";
+
+  const rec=games.filter(g=>g.f);
+
+  track.innerHTML=rec.concat(rec).map(g=>`
+    <div class="bigCard" onclick="openGame('${g.l}')">
+      <img src="${g.i}">
+      <span>${g.t}</span>
+    </div>
+  `).join("");
 }
 
 /* GRID */
@@ -275,36 +306,33 @@ function render(){
 
   let list=games;
 
-  if(currentCat!=="All"){
-    if(currentCat==="Favorites"){
-      list=list.filter(g=>favs.includes(g.title));
-    }else{
-      list=list.filter(g=>g.cat===currentCat);
-    }
-  }
+  if(cat==="Favorites")list=list.filter(g=>fav.includes(g.t));
+  else if(cat!=="All")list=list.filter(g=>g.c===cat);
 
   list.forEach(g=>{
     const c=document.createElement("div");
     c.className="card";
 
-    const star=favs.includes(g.title)?"⭐":"☆";
+    const star=fav.includes(g.t)?"⭐":"☆";
 
     c.innerHTML=`
-      <img src="${g.img}">
+      <img src="${g.i}">
       <div class="card-title">
-        ${g.title}
-        <span onclick="event.stopPropagation();toggleFav('${g.title}')">${star}</span>
+        ${g.t}
+        <span onclick="event.stopPropagation();toggleFav('${g.t}')">${star}</span>
       </div>
     `;
 
-    c.onclick=()=>openGame(g);
+    c.onclick=()=>openGame(g.l);
     grid.appendChild(c);
   });
+
+  loadCarousel();
 }
 
 /* GAME */
-function openGame(g){
-  document.getElementById("frame").src=g.link;
+function openGame(l){
+  document.getElementById("frame").src=l;
   document.getElementById("player").style.display="block";
 }
 
@@ -313,23 +341,11 @@ function closeGame(){
   document.getElementById("frame").src="";
 }
 
-/* SEARCH */
-document.getElementById("search").oninput=(e)=>{
-  const v=e.target.value.toLowerCase();
-  const grid=document.getElementById("grid");
-  grid.innerHTML="";
+/* FULLSCREEN */
+function full(){
+  document.getElementById("frame").requestFullscreen();
+}
 
-  games.filter(g=>g.title.toLowerCase().includes(v))
-  .forEach(g=>{
-    const c=document.createElement("div");
-    c.className="card";
-    c.innerHTML=`<img src="${g.img}"><div class="card-title">${g.title}</div>`;
-    c.onclick=()=>openGame(g);
-    grid.appendChild(c);
-  });
-};
-
-loadFeatured();
 render();
 
 </script>
