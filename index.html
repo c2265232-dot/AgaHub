@@ -3,23 +3,15 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AgaHub v4</title>
+<title>AgaHub v5</title>
 
 <style>
 :root{
   --bg:#070c07;
   --panel:#0f1a0f;
   --card:#111a11;
-  --text:#ffffff;
+  --text:#fff;
   --accent:#00ff88;
-}
-
-/* LIGHT MODE */
-body.light{
-  --bg:#f2f2f2;
-  --panel:#ffffff;
-  --card:#e8e8e8;
-  --text:#111;
 }
 
 body{
@@ -30,41 +22,100 @@ body{
   overflow-x:hidden;
 }
 
+/* LOADING SCREEN */
+#loading{
+  position:fixed;
+  inset:0;
+  background:black;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  z-index:9999;
+}
+
+.loader{
+  width:60px;
+  height:60px;
+  border:4px solid #222;
+  border-top:4px solid var(--accent);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg);}
+}
+
 /* TOPBAR */
 .topbar{
-  position:sticky;
-  top:0;
-  z-index:50;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:12px;
+  padding:10px;
   background:var(--panel);
   border-bottom:2px solid var(--accent);
 }
 
-.logo{
-  color:var(--accent);
-  font-weight:bold;
-}
+.logo{color:var(--accent);font-weight:bold;}
 
 .search{
   width:40%;
   padding:8px;
-  border:none;
-  border-radius:8px;
 }
 
-button{
+/* CATEGORIES */
+.categories{
+  display:flex;
+  gap:10px;
+  padding:10px;
+  overflow-x:auto;
+}
+
+.cat{
+  padding:6px 10px;
+  background:#1a2a1a;
+  border-radius:20px;
   cursor:pointer;
+  white-space:nowrap;
 }
 
-/* GRID (4 per row) */
+.cat.active{
+  background:var(--accent);
+  color:black;
+}
+
+/* FEATURED CAROUSEL (MOVES LEFT) */
+.featured{
+  overflow:hidden;
+  white-space:nowrap;
+  padding:10px;
+}
+
+.featuredTrack{
+  display:inline-flex;
+  gap:10px;
+  animation:scrollLeft 18s linear infinite;
+}
+
+@keyframes scrollLeft{
+  from{transform:translateX(0);}
+  to{transform:translateX(-50%);}
+}
+
+.featuredCard{
+  min-width:180px;
+  background:var(--card);
+  border-radius:10px;
+  overflow:hidden;
+}
+
+/* GRID */
 .grid{
   display:grid;
-  grid-template-columns:repeat(4, 1fr);
-  gap:12px;
-  padding:15px;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  padding:10px;
 }
 
 @media(max-width:900px){
@@ -74,18 +125,21 @@ button{
   .grid{grid-template-columns:repeat(1,1fr);}
 }
 
-/* CARD */
+/* GAME CARD */
 .card{
   background:var(--card);
-  border:1px solid #1f3a1f;
-  border-radius:12px;
+  border-radius:10px;
   overflow:hidden;
-  transition:transform .2s, opacity .4s, transform .4s;
+  transform:translateX(-40px);
+  opacity:0;
+  animation:slideIn .4s forwards;
 }
 
-.card:hover{
-  transform:scale(1.05);
-  box-shadow:0 0 12px var(--accent);
+@keyframes slideIn{
+  to{
+    transform:translateX(0);
+    opacity:1;
+  }
 }
 
 .card img{
@@ -95,52 +149,10 @@ button{
 }
 
 .card-title{
-  text-align:center;
   padding:8px;
   color:var(--accent);
-}
-
-/* EXIT + ENTER ANIMATION */
-.slide-out{
-  transform:translateX(-120%);
-  opacity:0;
-}
-
-.slide-in{
-  transform:translateX(-120%);
-  opacity:0;
-  animation:in .4s forwards;
-}
-
-@keyframes in{
-  to{
-    transform:translateX(0);
-    opacity:1;
-  }
-}
-
-/* HERO */
-.hero{
-  margin:12px;
-  height:180px;
-  border-radius:12px;
-  overflow:hidden;
-  position:relative;
-}
-
-.hero img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.heroText{
-  position:absolute;
-  bottom:10px;
-  left:10px;
-  background:rgba(0,0,0,0.5);
-  padding:6px 10px;
-  color:var(--accent);
+  display:flex;
+  justify-content:space-between;
 }
 
 /* PLAYER */
@@ -149,157 +161,160 @@ button{
   position:fixed;
   inset:0;
   background:black;
-  z-index:100;
 }
 
-iframe{
-  width:100%;
-  height:100%;
-  border:none;
-}
+iframe{width:100%;height:100%;border:none;}
 
-.closeBtn,.fullBtn{
+.closeBtn{
   position:absolute;
+  right:10px;
   top:10px;
-  z-index:101;
+  background:red;
+  color:white;
   border:none;
-  padding:8px 12px;
-}
-
-.closeBtn{right:10px;background:red;color:white;}
-.fullBtn{left:10px;background:var(--accent);}
-
-/* SETTINGS */
-.settings{
-  position:fixed;
-  right:-300px;
-  top:0;
-  width:260px;
-  height:100%;
-  background:var(--panel);
-  border-left:2px solid var(--accent);
-  transition:.3s;
-  padding:15px;
-  z-index:200;
-}
-
-.settings.open{
-  right:0;
+  padding:10px;
+  z-index:1000;
 }
 </style>
 </head>
 
 <body>
 
+<!-- LOADING -->
+<div id="loading">
+  <div class="loader"></div>
+  <p style="color:var(--accent)">Loading AgaHub...</p>
+</div>
+
+<!-- TOP -->
 <div class="topbar">
   <div class="logo">💚 AgaHub</div>
   <input id="search" class="search" placeholder="Search games...">
-  <button onclick="toggleSettings()">⚙</button>
 </div>
 
-<div class="hero">
-  <img id="heroImg">
-  <div class="heroText" id="heroText"></div>
+<!-- CATEGORIES -->
+<div class="categories" id="cats"></div>
+
+<!-- FEATURED -->
+<div class="featured">
+  <div class="featuredTrack" id="featuredTrack"></div>
 </div>
 
+<!-- GRID -->
 <div class="grid" id="grid"></div>
 
 <!-- PLAYER -->
 <div id="player">
-  <button class="fullBtn" onclick="full()">⛶</button>
   <button class="closeBtn" onclick="closeGame()">X</button>
   <iframe id="frame"></iframe>
-</div>
-
-<!-- SETTINGS -->
-<div class="settings" id="settings">
-  <h3 style="color:var(--accent)">Settings</h3>
-
-  <button onclick="toggleTheme()">Light/Dark Mode</button>
-  <br><br>
-
-  Accent Color:<br>
-  <input type="color" id="colorPicker">
-
-  <br><br>
-  <button onclick="closeSettings()">Close</button>
 </div>
 
 <script>
 
 const games = [
-  {title:"Bad Piggies", img:"https://upload.wikimedia.org/wikipedia/en/3/3e/Bad_Piggies_app_icon.png", link:"https://badpig.vercel.app/", featured:true},
-
-  {title:"Crazy Cattle", img:"https://via.placeholder.com/150", link:"https://crazy-cattle.github.io/"},
-
-  {title:"Slope", img:"https://via.placeholder.com/150", link:"https://slopegame.github.io/"},
-
-  {title:"Run 3", img:"https://via.placeholder.com/150", link:"https://run3.io/"},
-
-  {title:"Shell Shockers", img:"https://via.placeholder.com/150", link:"https://shellshock.io/"},
-
-  {title:"Drift Hunters", img:"https://via.placeholder.com/150", link:"https://drift-hunters.co/"},
-
-  {title:"Minecraft Classic", img:"https://via.placeholder.com/150", link:"https://classic.minecraft.net/"},
-
-  {title:"Tunnel Rush", img:"https://via.placeholder.com/150", link:"https://tunnelrush.github.io/"},
-
-  {title:"Paper.io", img:"https://via.placeholder.com/150", link:"https://paper-io.com/"}
+  {title:"Bad Piggies",img:"https://upload.wikimedia.org/wikipedia/en/3/3e/Bad_Piggies_app_icon.png",link:"https://badpig.vercel.app/",cat:"Popular",fav:false,featured:true},
+  {title:"Crazy Cattle",img:"https://via.placeholder.com/200",link:"https://crazy-cattle.github.io/",cat:"Action"},
+  {title:"Slope",img:"https://via.placeholder.com/200",link:"https://slopegame.github.io/",cat:"Action"},
+  {title:"Run 3",img:"https://via.placeholder.com/200",link:"https://run3.io/",cat:"Action"},
+  {title:"Shell Shockers",img:"https://via.placeholder.com/200",link:"https://shellshock.io/",cat:"Action"},
+  {title:"Tunnel Rush",img:"https://via.placeholder.com/200",link:"https://tunnelrush.github.io/",cat:"Action"},
+  {title:"Paper.io",img:"https://via.placeholder.com/200",link:"https://paper-io.com/",cat:"Puzzle"}
 ];
 
-let heroIndex=0;
+let currentCat="All";
+let favs=JSON.parse(localStorage.getItem("favs")||"[]");
 
-function load(){
+/* LOADING SCREEN */
+setTimeout(()=>{
+  document.getElementById("loading").style.display="none";
+},1200);
+
+/* CATEGORIES */
+const cats=["All","Popular","Action","Puzzle","Favorites"];
+
+const catBox=document.getElementById("cats");
+
+cats.forEach(c=>{
+  const d=document.createElement("div");
+  d.className="cat";
+  d.innerText=c;
+  if(c==="All")d.classList.add("active");
+
+  d.onclick=()=>{
+    document.querySelectorAll(".cat").forEach(x=>x.classList.remove("active"));
+    d.classList.add("active");
+    currentCat=c;
+    render();
+  };
+
+  catBox.appendChild(d);
+});
+
+/* FEATURED */
+function loadFeatured(){
+  const f=document.getElementById("featuredTrack");
+  const list=games.filter(g=>g.featured);
+
+  f.innerHTML=list.concat(list).map(g=>
+    `<div class="featuredCard"><img src="${g.img}" style="width:100%"><div style="padding:5px;color:var(--accent)">${g.title}</div></div>`
+  ).join("");
+}
+
+/* FAVORITE */
+function toggleFav(title){
+  if(favs.includes(title))favs=favs.filter(f=>f!==title);
+  else favs.push(title);
+  localStorage.setItem("favs",JSON.stringify(favs));
+  render();
+}
+
+/* GRID */
+function render(){
   const grid=document.getElementById("grid");
   grid.innerHTML="";
 
-  games.forEach((g,i)=>{
-    const c=document.createElement("div");
-    c.className="card slide-in";
-    c.style.animationDelay=(i*30)+"ms";
+  let list=games;
 
-    c.innerHTML=`<img src="${g.img}"><div class="card-title">${g.title}</div>`;
-    c.onclick=()=>openGame(g,c);
+  if(currentCat!=="All"){
+    if(currentCat==="Favorites"){
+      list=list.filter(g=>favs.includes(g.title));
+    }else{
+      list=list.filter(g=>g.cat===currentCat);
+    }
+  }
+
+  list.forEach(g=>{
+    const c=document.createElement("div");
+    c.className="card";
+
+    const star=favs.includes(g.title)?"⭐":"☆";
+
+    c.innerHTML=`
+      <img src="${g.img}">
+      <div class="card-title">
+        ${g.title}
+        <span onclick="event.stopPropagation();toggleFav('${g.title}')">${star}</span>
+      </div>
+    `;
+
+    c.onclick=()=>openGame(g);
     grid.appendChild(c);
   });
-
-  hero();
 }
 
-function hero(){
-  const f=games.filter(g=>g.featured||g.title==="Bad Piggies");
-  const g=f[heroIndex%f.length];
-  document.getElementById("heroImg").src=g.img;
-  document.getElementById("heroText").innerText=g.title;
-  heroIndex++;
-}
-
-setInterval(hero,4000);
-
-/* GAME OPEN */
-function openGame(g,card){
-  document.querySelectorAll(".card").forEach(c=>{
-    c.classList.add("slide-out");
-  });
-
-  setTimeout(()=>{
-    document.getElementById("frame").src=g.link;
-    document.getElementById("player").style.display="block";
-  },400);
+/* GAME */
+function openGame(g){
+  document.getElementById("frame").src=g.link;
+  document.getElementById("player").style.display="block";
 }
 
 function closeGame(){
   document.getElementById("player").style.display="none";
   document.getElementById("frame").src="";
-  load();
-}
-
-function full(){
-  document.getElementById("frame").requestFullscreen();
 }
 
 /* SEARCH */
-document.getElementById("search").addEventListener("input",(e)=>{
+document.getElementById("search").oninput=(e)=>{
   const v=e.target.value.toLowerCase();
   const grid=document.getElementById("grid");
   grid.innerHTML="";
@@ -307,38 +322,15 @@ document.getElementById("search").addEventListener("input",(e)=>{
   games.filter(g=>g.title.toLowerCase().includes(v))
   .forEach(g=>{
     const c=document.createElement("div");
-    c.className="card slide-in";
+    c.className="card";
     c.innerHTML=`<img src="${g.img}"><div class="card-title">${g.title}</div>`;
-    c.onclick=()=>openGame(g,c);
+    c.onclick=()=>openGame(g);
     grid.appendChild(c);
   });
-});
-
-/* SETTINGS */
-function toggleSettings(){
-  document.getElementById("settings").classList.toggle("open");
-}
-
-function closeSettings(){
-  document.getElementById("settings").classList.remove("open");
-}
-
-/* THEME */
-const picker=document.getElementById("colorPicker");
-
-picker.value=localStorage.getItem("accent")||"#00ff88";
-document.documentElement.style.setProperty("--accent",picker.value);
-
-picker.oninput=(e)=>{
-  document.documentElement.style.setProperty("--accent",e.target.value);
-  localStorage.setItem("accent",e.target.value);
 };
 
-function toggleTheme(){
-  document.body.classList.toggle("light");
-}
-
-load();
+loadFeatured();
+render();
 
 </script>
 
