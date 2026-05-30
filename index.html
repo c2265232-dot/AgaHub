@@ -3,103 +3,191 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AgaHub</title>
+<title>AgaHub v2</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #070c07;
-  color: white;
+:root{
+  --bg:#070c07;
+  --panel:#0f1a0f;
+  --card:#111a11;
+  --green:#00ff88;
+  --text:#ffffff;
 }
 
-/* TOP BAR */
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  background: #0f1a0f;
-  border-bottom: 2px solid #00ff88;
+body{
+  margin:0;
+  font-family:Arial;
+  background:var(--bg);
+  color:var(--text);
 }
 
-.logo {
-  font-size: 22px;
-  font-weight: bold;
-  color: #00ff88;
-  text-shadow: 0 0 10px #00ff88;
+/* TOPBAR */
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px;
+  background:var(--panel);
+  border-bottom:2px solid var(--green);
 }
 
-.search {
-  padding: 8px;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-  width: 220px;
+.logo{
+  font-weight:bold;
+  color:var(--green);
+  text-shadow:0 0 10px var(--green);
 }
 
-/* GRID */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 15px;
-  padding: 20px;
+.search{
+  width:40%;
+  padding:8px;
+  border-radius:8px;
+  border:none;
+  outline:none;
 }
 
-/* CARD */
-.card {
-  background: #111a11;
-  border: 1px solid #1f3a1f;
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: 0.2s;
+.menuBtn{
+  background:transparent;
+  border:1px solid var(--green);
+  color:var(--green);
+  padding:6px 10px;
+  cursor:pointer;
+  border-radius:6px;
 }
 
-.card:hover {
-  transform: scale(1.05);
-  border-color: #00ff88;
-  box-shadow: 0 0 18px #00ff88;
+/* HERO */
+.hero{
+  margin:15px;
+  height:200px;
+  border-radius:12px;
+  overflow:hidden;
+  position:relative;
+  border:1px solid #1f3a1f;
 }
 
-.card img {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
+.hero img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 
-.card-title {
-  padding: 10px;
-  text-align: center;
-  color: #00ff88;
-  font-weight: bold;
+.heroText{
+  position:absolute;
+  bottom:10px;
+  left:10px;
+  background:rgba(0,0,0,0.6);
+  padding:6px 10px;
+  border-radius:8px;
+  color:var(--green);
+}
+
+/* ROWS */
+.sectionTitle{
+  margin:15px;
+  color:var(--green);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:12px;
+  padding:15px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid #1f3a1f;
+  border-radius:12px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.card:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 15px var(--green);
+  border-color:var(--green);
+}
+
+.card img{
+  width:100%;
+  height:110px;
+  object-fit:cover;
+}
+
+.card-title{
+  text-align:center;
+  padding:8px;
+  color:var(--green);
+  font-size:14px;
 }
 
 /* PLAYER */
-#player {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: black;
-  z-index: 999;
+#player{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:black;
+  z-index:100;
 }
 
-#closeBtn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: red;
-  color: white;
-  border: none;
-  padding: 10px 14px;
-  cursor: pointer;
-  z-index: 1000;
+#frame{
+  width:100%;
+  height:100%;
+  border:none;
 }
 
-iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
+.closeBtn{
+  position:absolute;
+  top:10px;
+  right:10px;
+  z-index:101;
+  background:red;
+  border:none;
+  color:white;
+  padding:8px 12px;
+  cursor:pointer;
+}
+
+.fullBtn{
+  position:absolute;
+  top:10px;
+  left:10px;
+  z-index:101;
+  background:var(--green);
+  border:none;
+  padding:8px 12px;
+  cursor:pointer;
+}
+
+/* SETTINGS */
+.settings{
+  position:fixed;
+  top:0;
+  right:-300px;
+  width:260px;
+  height:100%;
+  background:#0b120b;
+  border-left:2px solid var(--green);
+  transition:.3s;
+  z-index:200;
+  padding:15px;
+}
+
+.settings.open{
+  right:0;
+}
+
+.settingItem{
+  margin:10px 0;
+  color:var(--green);
+}
+
+/* MOBILE */
+@media(max-width:600px){
+  .search{width:55%;}
 }
 </style>
 </head>
@@ -108,88 +196,163 @@ iframe {
 
 <div class="topbar">
   <div class="logo">💚 AgaHub</div>
-  <input class="search" id="search" placeholder="Search games..." />
+  <input id="search" class="search" placeholder="Search games...">
+  <button class="menuBtn" onclick="toggleSettings()">⚙</button>
 </div>
 
+<!-- HERO -->
+<div class="hero" id="hero">
+  <img id="heroImg" src="">
+  <div class="heroText" id="heroText">Featured Game</div>
+</div>
+
+<h3 class="sectionTitle">🔥 Featured</h3>
+<div class="grid" id="featured"></div>
+
+<h3 class="sectionTitle">🎮 All Games</h3>
 <div class="grid" id="grid"></div>
 
 <!-- PLAYER -->
 <div id="player">
-  <button id="closeBtn" onclick="closeGame()">X</button>
+  <button class="closeBtn" onclick="closeGame()">X</button>
+  <button class="fullBtn" onclick="fullscreen()">⛶</button>
   <iframe id="frame"></iframe>
+</div>
+
+<!-- SETTINGS -->
+<div class="settings" id="settings">
+  <h3 style="color:var(--green)">Settings</h3>
+
+  <div class="settingItem">
+    <button onclick="toggleAnim()">Toggle Animations</button>
+  </div>
+
+  <div class="settingItem">
+    <button onclick="reset()">Reset Settings</button>
+  </div>
 </div>
 
 <script>
 
+let anim = localStorage.getItem("anim") !== "off";
+
 const games = [
   {
-    title: "Bad Piggies",
-    thumbnail: "https://imgur.com/your-image.jpg",
-    link: "https://badpig.vercel.app/"
+    title:"Bad Piggies",
+    img:"https://upload.wikimedia.org/wikipedia/en/3/3e/Bad_Piggies_app_icon.png",
+    link:"https://badpig.vercel.app/",
+    featured:true
   },
-
   {
-    title: "2048",
-    thumbnail: "https://upload.wikimedia.org/wikipedia/commons/1/18/2048_game.svg",
-    link: "https://play2048.co/"
+    title:"2048",
+    img:"https://upload.wikimedia.org/wikipedia/commons/1/18/2048_game.svg",
+    link:"https://play2048.co/",
+    featured:true
   },
-
   {
-    title: "Cookie Clicker",
-    thumbnail: "https://orteil.dashnet.org/cookieclicker/img/favicon.ico",
-    link: "https://orteil.dashnet.org/cookieclicker/"
+    title:"Cookie Clicker",
+    img:"https://orteil.dashnet.org/cookieclicker/img/favicon.ico",
+    link:"https://orteil.dashnet.org/cookieclicker/"
   },
-
   {
-    title: "Tetris",
-    thumbnail: "https://tetris.com/favicon.ico",
-    link: "https://tetris.com/play-tetris"
+    title:"Tetris",
+    img:"https://tetris.com/favicon.ico",
+    link:"https://tetris.com/play-tetris"
+  },
+  {
+    title:"Cloverpit",
+    img:"https://via.placeholder.com/150",
+    link:"https://c2265232-dot.github.io/sgwdefewed/"
   }
-{
-    title: "Cloverpit",
-    thumbnail: "https://tetris.com/favicon.ico",
-    link: "https://c2265232-dot.github.io/sgwdefewed/"
-  }
-  
 ];
 
-const grid = document.getElementById("grid");
+let heroIndex = 0;
 
-function loadGames(list = games) {
-  grid.innerHTML = "";
+function load(){
+  const grid=document.getElementById("grid");
+  const featured=document.getElementById("featured");
 
-  list.forEach(game => {
-    const card = document.createElement("div");
-    card.className = "card";
+  grid.innerHTML="";
+  featured.innerHTML="";
 
-    card.innerHTML = `
-      <img src="${game.thumbnail}">
-      <div class="card-title">${game.title}</div>
-    `;
+  games.forEach(g=>{
+    const card=document.createElement("div");
+    card.className="card";
+    card.innerHTML=`<img src="${g.img}"><div class="card-title">${g.title}</div>`;
+    card.onclick=()=>openGame(g);
+    grid.appendChild(card);
 
-    card.onclick = () => openGame(game);
+    if(g.featured){
+      const f=document.createElement("div");
+      f.className="card";
+      f.innerHTML=`<img src="${g.img}"><div class="card-title">${g.title}</div>`;
+      f.onclick=()=>openGame(g);
+      featured.appendChild(f);
+    }
+  });
+
+  updateHero();
+}
+
+function updateHero(){
+  const featuredGames=games.filter(g=>g.featured);
+  const g=featuredGames[heroIndex % featuredGames.length];
+
+  document.getElementById("heroImg").src=g.img;
+  document.getElementById("heroText").innerText=g.title;
+
+  heroIndex++;
+}
+
+setInterval(updateHero,4000);
+
+function openGame(g){
+  document.getElementById("frame").src=g.link;
+  document.getElementById("player").style.display="block";
+}
+
+function closeGame(){
+  document.getElementById("player").style.display="none";
+  document.getElementById("frame").src="";
+}
+
+function fullscreen(){
+  let f=document.getElementById("frame");
+  if(f.requestFullscreen) f.requestFullscreen();
+}
+
+document.getElementById("search").addEventListener("input",(e)=>{
+  const v=e.target.value.toLowerCase();
+  const filtered=games.filter(g=>g.title.toLowerCase().includes(v));
+  
+  const grid=document.getElementById("grid");
+  grid.innerHTML="";
+  
+  filtered.forEach(g=>{
+    const card=document.createElement("div");
+    card.className="card";
+    card.innerHTML=`<img src="${g.img}"><div class="card-title">${g.title}</div>`;
+    card.onclick=()=>openGame(g);
     grid.appendChild(card);
   });
-}
-
-function openGame(game) {
-  document.getElementById("frame").src = game.link;
-  document.getElementById("player").style.display = "block";
-}
-
-function closeGame() {
-  document.getElementById("player").style.display = "none";
-  document.getElementById("frame").src = "";
-}
-
-// SEARCH
-document.getElementById("search").addEventListener("input", (e) => {
-  const v = e.target.value.toLowerCase();
-  const filtered = games.filter(g => g.title.toLowerCase().includes(v));
-  loadGames(filtered);
 });
 
-loadGames();
+function toggleSettings(){
+  document.getElementById("settings").classList.toggle("open");
+}
+
+function toggleAnim(){
+  anim=!anim;
+  localStorage.setItem("anim",anim?"on":"off");
+  alert("Animations toggled (reload to fully apply)");
+}
+
+function reset(){
+  localStorage.clear();
+  location.reload();
+}
+
+load();
 
 </script>
 
